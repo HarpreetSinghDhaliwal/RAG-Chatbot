@@ -33,13 +33,13 @@ flowchart LR
 
 ___
 
-**Frontend: React SPA, real-time chat UI, session selection.
+Frontend: React SPA, real-time chat UI, session selection.
 
 Backend: Node.js Express + Socket.IO, RAG pipeline, Redis session store.
 
 Vector DB: Qdrant stores article embeddings for semantic search.
 
-LLM: Gemini API generates answers with citation context.**
+LLM: Gemini API generates answers with citation context.
 
 
 
