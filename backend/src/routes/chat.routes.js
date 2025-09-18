@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { handleChat, getHistory, resetHistory } from "../controllers/chat.controller.js";
+import { chat, history, reset } from "../controllers/chat.controller.js";
 
 const router = Router();
 
-router.post("/", handleChat);
-router.get("/:sessionId", getHistory);
-router.post("/reset/:sessionId", resetHistory);
+router.post("/", chat);
+router.get("/history", history);
+router.post("/reset", reset);
 
 export default router;

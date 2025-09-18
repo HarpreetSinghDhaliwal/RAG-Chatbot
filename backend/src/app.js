@@ -1,11 +1,14 @@
 import express from "express";
-import dotenv from "dotenv";
-import chatRoutes from "./routes/index.js";
+import cors from "cors";
+import routes from "./routes/index.js";
 
-dotenv.config();
 const app = express();
 
+app.use(cors());
 app.use(express.json());
-app.use("/api", chatRoutes);
+
+app.use("/api", routes);
+
+app.get("/", (req, res) => res.send("✅ RAG Chatbot Backend Running"));
 
 export default app;

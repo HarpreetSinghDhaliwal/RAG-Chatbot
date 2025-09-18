@@ -1,33 +1,52 @@
-import { v4 as uuid } from "uuid";
-import redisClient from "../config/redis.js";
+import { generateEmbeddings } from "../embeddings/embedder.js";
+import { retrieveRelevantChunks } from "../services/retriever.js";
+import { callGemini } from "../services/llm.js";
+import { saveMessage, getMessages, clearSession, createSessionId } from "../utils/session.js";
 
-export async function handleChat(req, res) {
+// update chat controller (only function shown)
+export async function chat(req, res) {
   try {
-    let { sessionId, message } = req.body;
-    if (!sessionId) sessionId = uuid();
+    let { sessionId, query } = req.body;
+    if (!sessionId) sessionId = createSessionId();
 
-    // Here you will call your retriever + LLM service
-    const botResponse = `You said: ${message}`; // placeholder
+    await saveMessage(sessionId, "user", query);
 
-    await redisClient.rPush(`chat:${sessionId}`, JSON.stringify({ role: "user", text: message }));
-    await redisClient.rPush(`chat:${sessionId}`, JSON.stringify({ role: "bot", text: botResponse }));
-    await redisClient.expire(`chat:${sessionId}`, 3600);
+    const queryEmbedding = await generateEmbeddings(query);
+    const chunks = await retrieveRelevantChunks(queryEmbedding, 4); // top-4
 
-    res.json({ sessionId, answer: botResponse });
+    const answer = await callGemini(chunks, query);
+
+    await saveMessage(sessionId, "bot", answer);
+
+    // Build sources info to return
+    const sources = chunks.map((c, idx) => ({
+      id: idx + 1,
+      title: c.title,
+      url: c.url,
+      chunk_id: c.chunk_id
+    }));
+
+    // Consistent API schema
+    res.json({
+      success: true,
+      sessionId,
+      answer,
+      sources
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ success: false, error: "Internal server error" });
   }
 }
 
-export async function getHistory(req, res) {
-  const { sessionId } = req.params;
-  const history = await redisClient.lRange(`chat:${sessionId}`, 0, -1);
-  res.json({ sessionId, history: history.map((h) => JSON.parse(h)) });
+export async function history(req, res) {
+  const { sessionId } = req.query;
+  const messages = await getMessages(sessionId);
+  res.json(messages);
 }
 
-export async function resetHistory(req, res) {
-  const { sessionId } = req.params;
-  await redisClient.del(`chat:${sessionId}`);
-  res.json({ sessionId, message: "Chat history cleared" });
+export async function reset(req, res) {
+  const { sessionId } = req.body;
+  await clearSession(sessionId);
+  res.json({ message: "Session cleared" });
 }
