@@ -33,15 +33,17 @@ flowchart LR
 
 
 ---
+Components
 
-Frontend: react , real-time chat UI, session selection.
-
-Backend: Node.js Express + Socket.IO, RAG pipeline, Redis session store.
-
-Vector DB: Qdrant stores article embeddings for semantic search.
-
-LLM: Gemini API generates answers with citation context.
-
+    Frontend: React application with real-time chat interface, session selection, and message streaming using Socket.IO.
+    
+    Backend: Node.js + Express server handling API endpoints, WebSocket connections, Redis session storage, and the RAG (Retrieval-Augmented Generation) pipeline.
+    
+    Vector Database: Qdrant stores embeddings of ingested articles for semantic search and fast retrieval.
+    
+    LLM: Google Gemini 2.0 Flash generates answers using retrieved context with proper source citations.
+    
+    Redis: Manages session histories and real-time message storage for chat continuity.
 
 
 rag-chatbot/
@@ -51,12 +53,13 @@ rag-chatbot/
 │   │   │   ├── redis.js         # Redis connection
 │   │   │   └── vectorDB.js      # Qdrant setup
 │   │   ├── embeddings/
-│   │   │   └── ingestNews.js    # News ingestion & upsert
+│   │   │   ├── ingestNews.js    # News ingestion & upsert
+│   │   │   └── retriever.js     # Retrieve relevant chunks
 │   │   ├── services/
 │   │   │   ├── embedder.js      # Embeddings generator
 │   │   │   ├── ragService.js    # RAG pipeline
-│   │   │   ├── llm.js           # Gemini API integration
-│   │   │   └── retriever.js     # Retrieve relevant chunks
+│   │   │   └── llm.js           # Gemini API integration
+│   │   │       
 │   │   ├── utils/
 │   │   │   └── generateId.js    # Unique session IDs
 │   │   └── server.js            # Express + Socket.IO server
