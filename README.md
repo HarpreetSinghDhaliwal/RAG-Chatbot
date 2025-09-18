@@ -34,7 +34,7 @@ flowchart LR
 
 ---
 
-**##Frontend: React SPA, real-time chat UI, session selection.**
+Frontend: react , real-time chat UI, session selection.
 
 Backend: Node.js Express + Socket.IO, RAG pipeline, Redis session store.
 
