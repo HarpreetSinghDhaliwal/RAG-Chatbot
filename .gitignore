@@ -10,4 +10,4 @@ backend/dist/
 
 # Env files
 backend/.env
-frontend/.env
+rag-chatbot-frontend/.env
